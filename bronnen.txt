@@ -1,0 +1,4 @@
+bronnen:
+https://docs.python.org/3/library/tkinter.html
+https://en.wikipedia.org/wiki/Chess#Strategy
+https://medium.com/@rjaloudi/a-journey-into-chess-algorithms-strategies-optimization-and-implementation-81f88ac457d3
