@@ -1,9 +1,35 @@
-class Chess:
+from chessSolver import minimax
+import copy
+
+class Chess():
     def __init__(self):        
-        self.board = [['. ' for _ in range(8)] for _ in range(8)]
+        self.board = None
         self.turn = 0
         self.last_move = None
+
+        self.points = {
+            'P': 1,
+            'N': 3,
+            'B': 3,
+            'R': 5,
+            'Q': 9
+        }
+        
+        #castling
+        self.castle_white = [1,1]
+        self.castle_black = [1,1]
+
         self.initialize_pieces()
+    
+    def copy(self):
+        # Return a deep copy of the current game state
+        return copy.deepcopy(self)
+
+    def ai_move(self, depth):
+        if self.turn == 1:
+            _, (piece, old_pos, new_pos) = minimax(self.copy(), depth, False)
+            print(f'stuk:{piece}:')
+            self.move_piece(piece, old_pos, new_pos)
 
     def change_turn(self):
         self.turn = 1 - self.turn
@@ -12,47 +38,37 @@ class Chess:
         if self.is_in_check(self.turn):
             print("Check!")
 
-    def initialize_pieces(self):
-        pieces_black = ['bP', 'bR', 'bN', 'bB', 'bQ', 'bK']
-        pieces_white = ['wP', 'wR', 'wN', 'wB', 'wQ', 'wK']
+    def initialize_pieces(self, fen=None):
+        self.board = [['. ' for _ in range(8)] for _ in range(8)]
+        if fen:
+            self.load_fen(fen)
+        else:
+            self.set_default_position()
 
-        #Pionnen
-        for y in range(8):
-            self.board[1][y] = pieces_white[0]
-            self.board[6][y] = pieces_black[0]
+    def set_default_position(self):
+        self.load_fen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
-        #Torens
-        self.board[0][0] = pieces_white[1]
-        self.board[0][7] = pieces_white[1]
-        self.board[7][0] = pieces_black[1]
-        self.board[7][7] = pieces_black[1]
+    def load_fen(self, fen):
+        rows = fen.split()[0].split('/')
+        for x, row in enumerate(rows):
+            y = 0
+            for char in row:
+                if char.isdigit():
+                    y += int(char)
+                else:
+                    piece = ('w' if char.isupper() else 'b') + char.upper()
+                    self.board[x][y] = piece
+                    y += 1
 
-        #Paarden
-        self.board[0][1] = pieces_white[2]
-        self.board[0][6] = pieces_white[2]
-        self.board[7][1] = pieces_black[2]
-        self.board[7][6] = pieces_black[2]
-
-        #Lopers
-        self.board[0][2] = pieces_white[3]
-        self.board[0][5] = pieces_white[3]
-        self.board[7][2] = pieces_black[3]
-        self.board[7][5] = pieces_black[3]
-
-        #Koninginnen
-        self.board[0][3] = pieces_white[4]
-        self.board[7][3] = pieces_black[4]
-
-        #Koningen
-        self.board[0][4] = pieces_white[5]
-        self.board[7][4] = pieces_black[5]
-
+    #check if coordinates inside board
     def is_in_bounds(self, x, y):
         return 0 <= x < 8 and 0 <= y < 8
     
+    #check if position has no piece
     def is_empty(self, x, y):
         return self.board[y][x] == '. '
     
+    #check if position is enemy
     def is_enemy(self, x, y, color):
         if color == 'w':
             return self.board[y][x][0] == 'b'
@@ -61,19 +77,23 @@ class Chess:
         
     def pawn_movement(self, color, x, y):
         possible_positions = []
-        direction = 1 if color == 'w' else -1
-        start_row = 1 if color == 'w' else 6
-        en_passant_row = 5 if color == 'w' else 2
-
-        if self.last_move != None:
-            last_from, last_to, last_piece = self.last_move
-
+        direction = 1 if color == 'b' else -1
+        start_row = 1 if color == 'b' else 6
+        
         #move forward one or two positions based on start position
         if self.is_in_bounds(x, y + direction) and self.is_empty(x, y + direction):
             possible_positions.append((x, y + direction))
             if y == start_row and self.is_empty(x, y + 2 * direction):
                 possible_positions.append((x, y + 2 * direction))
 
+        self.pawn_captures(x,y, direction, color, possible_positions)
+
+        return possible_positions
+    
+    def pawn_captures(self, x, y, direction, color, possible_positions):
+        en_passant_row = 5 if color == 'b' else 2
+        if self.last_move != None:
+            last_from, last_to, last_piece = self.last_move[:3]
         #diagonall captures
         for dx in [-1, 1]:
             new_x = x + dx
@@ -84,8 +104,6 @@ class Chess:
                 if abs(last_to[1] - last_from[1]) == 2 and last_piece[1] == 'P' and y+direction == en_passant_row and new_x == last_from[0]:
                     possible_positions.append((new_x, new_y))
 
-        return possible_positions
-    
     def rook_movement(self, color, x ,y):
         #rook directions
         rook_moves = [[0,1],[0,-1],[1,0],[-1,0]]
@@ -105,7 +123,18 @@ class Chess:
     
     def king_movement(self, color, x, y):
         king_moves = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
-        return self.single_movement(color, x, y, king_moves)
+        possible_positions = self.single_movement(color, x, y, king_moves)
+
+        if color == 'b' and (x == 4 and y == 0) and self.is_empty(5, 0) and self.is_empty(6,0) and self.castle_white[0] == 1:
+            possible_positions.append((6,0))
+        if color == 'b' and (x == 4 and y == 0) and self.is_empty(3,0) and self.is_empty(2,0) and self.is_empty(1,0) and self.castle_white[1] == 1:
+            possible_positions.append((2,0))
+        if color == 'w' and (x == 4 and y == 7) and self.is_empty(5, 7) and self.is_empty(6,7) and self.castle_black[0] == 1:
+            possible_positions.append((6,7))
+        if color == 'w' and (x == 4 and y == 7) and self.is_empty(3,0) and self.is_empty(2,0) and self.is_empty(1,0) and self.castle_black[1] == 1:
+            possible_positions.append((2,7))
+
+        return possible_positions
     
     def filter_positions_check(self, possible_positions, piece, x, y):
         filtered_positions = []
@@ -155,6 +184,9 @@ class Chess:
     def check_moveable_positions(self, piece, position, move=0):
         possible_positions = []
         x, y = position
+
+        if piece == '. ':
+            return
 
         piece_type = piece[1]
         color = piece[0]
@@ -208,6 +240,28 @@ class Chess:
     def can_piece_attack_king(self, piece, piece_position, king_position):
         return king_position in self.check_moveable_positions(piece, piece_position, 1)
 
+    # Checks if the performed move impacts castling.
+    def check_castle(self, piece, x):
+        if piece[1] == 'K':
+            if self.turn == 0:
+                self.castle_white = [0, 0]
+            else:
+                self.castle_black = [0, 0]
+        elif piece[1] == 'R':
+            if self.turn == 0:
+                if x < 4:
+                    self.castle_white[1] = 0  # Disable Queen side castle for white
+                elif x > 4:
+                    self.castle_white[0] = 0  # Disable King side castle for white
+            else:
+                if x < 4:
+                    self.castle_black[1] = 0  # Disable Queen side castle for black
+                elif x > 4:
+                    self.castle_black[0] = 0 # Disable King side castle for black
+    
+    def en_passant(self, piece, old_x, x, y):
+        if piece[1] == 'P' and abs(old_x - x) == 1:
+            self.board[y + (-1 if piece[0] == 'b' else 1)][x] = '. '
     
     def move_piece(self, piece, old_position, new_position):
         old_x, old_y = old_position
@@ -215,12 +269,52 @@ class Chess:
 
         if (self.turn == 0 and piece[0] == 'w') or (self.turn == 1 and piece[0] == 'b'):
             if new_position in self.check_moveable_positions(piece, old_position):
-                if piece[1] == 'P' and abs(old_x - x) == 1:
-                    self.board[y + (-1 if piece[0] == 'w' else 1)][x] = '. '
-                self.board[old_y][old_x] = '. '
-                self.board[y][x] = piece
-                self.last_move = (old_position, new_position, piece)
-                self.change_turn()
+                # Check for castling
+                if piece == 'wK' and abs(old_x - x) == 2:
+                    if x == 6:  # Kingside castling
+                        self.perform_castling(0, 4, 5, 6, 'wR', 'wK')
+                    elif x == 2:  # Queenside castling
+                        self.perform_castling(0, 4, 3, 2, 'wR', 'wK')
+                elif piece == 'bK' and abs(old_x - x) == 2:
+                    if x == 6:  # Kingside castling
+                        self.perform_castling(7, 4, 5, 6, 'bR', 'bK')
+                    elif x == 2:  # Queenside castling
+                        self.perform_castling(7, 4, 3, 2, 'bR', 'bK')
+                else:
+                # Normal moves
+                    captured_piece = None if self.board[y][x] == '. ' else self.board[y][x]
+                    if captured_piece != None:
+                        print(captured_piece)
+                    self.board[old_y][old_x] = '. '
+                    self.board[y][x] = piece
+
+                    # Special moves
+                    self.check_castle(piece, x)
+                    self.en_passant(piece, old_x, x, y)
+                    
+                    self.last_move = (old_position, new_position, piece, captured_piece, self.castle_white[:], self.castle_black[:])
+                    self.change_turn()
+
+    def perform_castling(self, row, king_start, rook_start, king_end, rook, king):
+        captured_piece = self.board[row][king_end]
+        self.last_move = ((row, king_start), (row, king_end), king, captured_piece, self.castle_white[:], self.castle_black[:])
+
+        self.board[row][king_start] = '. '
+        self.board[row][rook_start] = rook
+        self.board[row][king_end] = king
+        self.board[row][7] = '. '
+
+        if king_start < king_end:  # Kingside castling
+            if row == 0:
+                self.castle_white[0] = 0
+            else:
+                self.castle_black[0] = 0
+        else:  # Queenside castling
+            if row == 0:
+                self.castle_white[1] = 0
+            else:
+                self.castle_black[1] = 0
+
 
     def print_board(self):
         for row in reversed(self.board):

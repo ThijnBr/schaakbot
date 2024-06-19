@@ -39,30 +39,33 @@ class ChessGUI:
 
     def button_click(self, y, x):
         self.reset_button_colors()
-        if self.old_click is not None:
-            # Old clicked position
-            old_x, old_y = self.old_click
 
-            # Get the piece name
-            piece = self.board.board[old_y][old_x]
+        current_piece = self.board.board[y][x]
+
+        # Check if it's a valid selection or move
+        if self.old_click is not None:
+            old_x, old_y = self.old_click
+            selected_piece = self.board.board[old_y][old_x]
+
+            
 
             # Check if the old click had a piece and it's the correct player's turn
-            if piece != '. ' and ((self.board.turn == 0 and piece[0] == 'w') or (self.board.turn == 1 and piece[0] == 'b')):
+            if selected_piece != '. ' and ((self.board.turn == 0 and selected_piece[0] == 'w') or (self.board.turn == 1 and selected_piece[0] == 'b')):
                 # Current clicked position
                 new_x, new_y = x, y
 
-                # Move the piece on the board
-                self.board.move_piece(piece, (old_x, old_y), (new_x, new_y))
+                # Move the piece on the board if the move is valid
+                if (new_x, new_y) in self.board.check_moveable_positions(selected_piece, (old_x, old_y)):
+                    self.board.move_piece(selected_piece, (old_x, old_y), (new_x, new_y))
+                    self.board.ai_move(depth=2)
+                    self.update_board_gui()
+                    self.old_click = None  # Reset old click after move
+                    return
 
-                # Update the GUI
-                self.update_board_gui()
-
-        self.old_click = (x, y)
-
-        # Highlight possible moveable positions
-        piece = self.board.board[y][x]
-        if piece != '. ' and ((self.board.turn == 0 and piece[0] == 'w') or (self.board.turn == 1 and piece[0] == 'b')):
-            possible_positions = self.board.check_moveable_positions(piece, (x, y))
+        # Set the new old_click position if the selected piece is valid
+        if current_piece != '. ' and ((self.board.turn == 0 and current_piece[0] == 'w') or (self.board.turn == 1 and current_piece[0] == 'b')):
+            self.old_click = (x, y)
+            possible_positions = self.board.check_moveable_positions(current_piece, (x, y))
             for pos in possible_positions:
                 pos_x, pos_y = pos
                 self.buttons[pos_y][pos_x].config(bg='green')
