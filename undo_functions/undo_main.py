@@ -1,5 +1,6 @@
 from piece.sub_pieces import King, Rook
-from undo_functions.undo_castling import undo_castling, undo_castling_state
+from undo_functions.undo_castling import undo_castling_state, undo_castling_move
+from undo_functions.undo_en_passant import undo_en_passant_move
 def undo_move(chess):
         """
         params:
@@ -14,14 +15,21 @@ def undo_move(chess):
             return False
         
         historical_move = chess.history.pop()
-        start, end, target_piece, is_short_castle, is_long_castle, first_king_move, is_first_rook_move = historical_move
+        start, end, target_piece, is_short_castle, is_long_castle, first_king_move, is_first_rook_move, _, en_passant_capture = historical_move
 
         # Initialize start and end positions as y and x coordinates
         start_y, start_x = start
         end_y, end_x = end
         
+        # Check if chess history exists
+        #TODO make chess history en passant target work
+        # if chess.history and chess.history[-1][-2]:
+        #     chess.en_passant_target = chess.history[-1][-2]
         
-        # If its not a castling move, undo standard move.
+        # En passant capture
+        if en_passant_capture:
+            undo_en_passant_move(chess, end_y, end_x, start_y, start_x)
+        # If is not a castling move, do a undo default move.
         if not undo_castling_move(chess, is_short_castle, is_long_castle):
             chess.board[start_y][start_x] = chess.board[end_y][end_x]
             chess.board[end_y][end_x] = target_piece
@@ -32,25 +40,3 @@ def undo_move(chess):
         # Switch turn
         chess.switch_turn()
         return True
-
-def undo_castling_move(chess, is_short_castle, is_long_castle):
-    """
-    params:
-    (class Chess) chess
-    (bool) is_short_castle
-    (bool) is_long_castle
-
-    Function to undo a castling move completly.
-
-    Returns:
-    bool: True if move is castling move, false if not.
-    """
-    # Undo short castle
-    if is_short_castle:
-        undo_castling(True, chess.board, chess.current_turn)
-        return True
-    # Undo long castle
-    elif is_long_castle:
-        undo_castling(False, chess.board, chess.current_turn)
-        return True
-    return False

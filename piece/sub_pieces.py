@@ -26,8 +26,23 @@ class Pawn(Piece):
             possible_positions.append((y + direction, x))
             if y == start_row and chess.is_empty(y + 2 * direction, x):
                 possible_positions.append((y + 2 * direction, x))
-
+        
         # Capture moves
+        self.pawn_captures(chess, possible_positions, y, x, direction)
+
+        return possible_positions
+    
+    def pawn_captures(self, chess, possible_positions, y, x, direction):
+        """
+        params:
+        (board Chess) chess
+        (tuple) possible_positions
+        (int) y
+        (int) x
+        (int) direction
+
+        Function to calculate normal and en passant captures
+        """
         capture_moves = [(direction, -1), (direction, 1)]
         for dy, dx in capture_moves:
             ny, nx = y + dy, x + dx
@@ -36,13 +51,12 @@ class Pawn(Piece):
                 if chess.is_enemy(ny, nx, self.color):
                     possible_positions.append((ny, nx))
 
-                # En passant capture
-                # if chess.is_in_bounds(y, nx):
-                #     adjacent_piece = chess.board[y][nx]
-                #     if isinstance(adjacent_piece, Pawn) and adjacent_piece.color != self.color and adjacent_piece.en_passant:
-                #         possible_positions.append((ny, nx))
-
-        return possible_positions
+                #En passant capture
+                if chess.en_passant_target:
+                    en_passant_piece_y, en_passant_piece_x = chess.en_passant_target
+                    target_square = (en_passant_piece_y + direction, en_passant_piece_x)
+                    if target_square == (ny, nx):
+                        possible_positions.append((ny, nx))
 
 class Rook(Piece):
     def __init__(self, color):

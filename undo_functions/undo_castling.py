@@ -1,4 +1,26 @@
 from piece.sub_pieces import King, Rook
+def undo_castling_move(chess, is_short_castle, is_long_castle):
+    """
+    params:
+    (class Chess) chess
+    (bool) is_short_castle
+    (bool) is_long_castle
+
+    Function to undo a castling move completly. This one gets called in undo_move in undo_main.py
+
+    Returns:
+    bool: True if move is castling move, false if not.
+    """
+    # Undo short castle
+    if is_short_castle:
+        undo_castling(True, chess.board, chess.current_turn)
+        return True
+    # Undo long castle
+    elif is_long_castle:
+        undo_castling(False, chess.board, chess.current_turn)
+        return True
+    return False
+
 def undo_castling(short_side_castle, board, current_turn):
         """
         params:

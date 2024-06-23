@@ -25,6 +25,7 @@ def perft(chess, depth):
 default_board_perft_values = [1, 20, 400, 8902, 197281, 4865609]
 castle_board_perft_values = [1, 26, 749, 19718, 587091]
 castle_short_board_perft_values = [1, 29, 776]
+en_passant_board_perft_values = [1, 48, 2039, 97862]
 
 def main_test():
     chess = Chess('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
@@ -53,12 +54,23 @@ def castle_test_short():
         else:
             print(f'perft castle short {x} completed: failed. total_moves = {total_moves}')
 
+def en_passant_test():
+    chess = Chess('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ')
+    for x in range(3):
+        total_moves = perft(chess, x)
+        if total_moves == en_passant_board_perft_values[x]:
+            print(f'perft castle short {x} completed: success')
+        else:
+            print(f'perft castle short {x} completed: failed. total_moves = {total_moves}')
+
 def main():
     main_test()
     print()
     castle_test()
     print()
     castle_test_short()
+    print()
+    en_passant_test()
 
 def debug():
     chess = Chess('rnbqkbnr/pppp3p/4ppp1/8/8/4PN2/PPPPBPPP/RNBQK2R w KQkq - 0 4')

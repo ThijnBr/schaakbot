@@ -11,6 +11,7 @@ class ChessGUI:
         self.buttons = [[None for _ in range(8)] for _ in range(8)]
 
         self.old_click = None
+        self.possible_positions = None
 
         self.create_board_gui()
         self.create_undo_button()
@@ -58,7 +59,8 @@ class ChessGUI:
             selected_piece = self.chess.board[old_y][old_x]
 
             if selected_piece and selected_piece.color == self.chess.current_turn:
-                if self.chess.make_move((old_y, old_x), (y, x)):
+                if (y, x) in self.possible_positions:
+                    self.chess.make_move((old_y, old_x), (y, x))
                     self.update_board_gui()
 
                 self.old_click = None
@@ -68,11 +70,12 @@ class ChessGUI:
         if current_piece and current_piece.color == self.chess.current_turn:
             self.old_click = (y, x)
             possible_positions = current_piece.get_possible_moves((y, x), self.chess)
+            self.possible_positions = possible_positions
             for pos_y, pos_x in possible_positions:
                 self.buttons[pos_y][pos_x].config(bg='green')
 
 root = Tk()
-chess = Chess('rnbqkbnr/pppp2pp/4pp2/8/8/4PN2/PPPPBPPP/RNBQK2R b KQkq - 1 3') 
+chess = Chess('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ') 
 gui = ChessGUI(root, chess)
 gui.frm.pack()
 root.mainloop()
