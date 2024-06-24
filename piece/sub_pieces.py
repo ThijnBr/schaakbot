@@ -44,19 +44,18 @@ class Pawn(Piece):
         Function to calculate normal and en passant captures
         """
         capture_moves = [(direction, -1), (direction, 1)]
-        for dy, dx in capture_moves:
-            ny, nx = y + dy, x + dx
-            if chess.is_in_bounds(ny, nx):
+        for direction_y, direction_x in capture_moves:
+            new_y, new_x = y + direction_y, x + direction_x
+            if chess.is_in_bounds(new_y, new_x):
                 # Normal capture
-                if chess.is_enemy(ny, nx, self.color):
-                    possible_positions.append((ny, nx))
+                if chess.is_enemy(new_y, new_x, self.color):
+                    possible_positions.append((new_y, new_x))
 
                 #En passant capture
                 if chess.en_passant_target:
-                    en_passant_piece_y, en_passant_piece_x = chess.en_passant_target
-                    target_square = (en_passant_piece_y + direction, en_passant_piece_x)
-                    if target_square == (ny, nx):
-                        possible_positions.append((ny, nx))
+                    target_y, target_x = chess.en_passant_target
+                    if target_x == new_x and new_y - direction == target_y:
+                        possible_positions.append((new_y, new_x))
 
 class Rook(Piece):
     def __init__(self, color):

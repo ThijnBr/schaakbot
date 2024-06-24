@@ -1,6 +1,7 @@
 from piece.sub_pieces import King, Rook
 from undo_functions.undo_castling import undo_castling_state, undo_castling_move
-from undo_functions.undo_en_passant import undo_en_passant_move
+from undo_functions.undo_en_passant import undo_en_passant
+
 def undo_move(chess):
         """
         params:
@@ -21,18 +22,15 @@ def undo_move(chess):
         start_y, start_x = start
         end_y, end_x = end
         
-        # Check if chess history exists
-        #TODO make chess history en passant target work
-        # if chess.history and chess.history[-1][-2]:
-        #     chess.en_passant_target = chess.history[-1][-2]
-        
-        # En passant capture
         if en_passant_capture:
-            undo_en_passant_move(chess, end_y, end_x, start_y, start_x)
+            undo_en_passant(chess, end_y, end_x, start_y, start_x)
         # If is not a castling move, do a undo default move.
-        if not undo_castling_move(chess, is_short_castle, is_long_castle):
+        elif not undo_castling_move(chess, is_short_castle, is_long_castle):
             chess.board[start_y][start_x] = chess.board[end_y][end_x]
             chess.board[end_y][end_x] = target_piece
+
+        if chess.history:
+            chess.en_passant_target = chess.history[-1][-2]
 
         # Undo castling state in Chess instance
         undo_castling_state(chess, start, first_king_move, is_first_rook_move)

@@ -69,7 +69,7 @@ def set_king_moved(chess, first_king_move):
     """
     # Check if first king move and set king_moved variables
     if first_king_move:
-        if chess.current_turn == 'white':
+        if chess.current_turn == 'black':
             chess.white_king_moved = False
         else:
             chess.black_king_moved = False
@@ -107,11 +107,11 @@ def set_castling_state(chess):
         if not chess.white_king_moved:
             if not chess.white_rook_short_moved:
                 chess.castle_short_white = True
-            elif not chess.white_rook_long_moved:
+            if not chess.white_rook_long_moved:
                 chess.castle_long_white = True
     else:
         if not chess.black_king_moved:
             if not chess.black_rook_short_moved:
                 chess.castle_short_black = True
-            elif not chess.black_rook_long_moved:
+            if not chess.black_rook_long_moved:
                 chess.castle_long_black = True

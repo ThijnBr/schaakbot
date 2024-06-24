@@ -3,7 +3,7 @@ from undo_functions.undo_main import undo_move
 from board.load_fen import load_from_fen
 from castling.castling_main import castling_move, check_castling_move
 from castling.castling_check_for_movement import check_for_king_movement, check_for_rook_movement
-from en_passant.en_passant_main import check_en_passant_possible, check_for_en_passant_capture, en_passant_capture_move
+from en_passant.en_passant_main import setup_en_passant, check_for_en_passant_capture, en_passant_capture_move
 
 class Chess:
     def __init__(self, fen=None):
@@ -20,7 +20,7 @@ class Chess:
         (bool) isFirstKingMove = False
         (bool) isFirstRookMove = False
         (bool) isEnPassantPossible = False
-        (bool) isEnPassantSkipped = False
+        (bool) isEnPassantCapture = False
         """
         self.history = []
 
@@ -123,6 +123,29 @@ class Chess:
                         return True
         
         return False
+    
+    def is_checkmate(self, color):
+        """
+        params:
+        (string) color
+        
+        Function to check if the given color is in checkmate.
+
+        Returns:
+        bool: True if the given color is in checkmate, False otherwise.
+        """
+        all_moves = []
+        
+        for y in range(8):
+            for x in range(8):
+                piece = self.board[y][x]
+                if piece and piece.color == color:
+                    possible_moves = piece.get_possible_moves((y, x), self)
+                    all_moves += possible_moves
+        
+        if all_moves == []:
+            return True
+        return False
 
     def find_king_position(self, color):
         """
@@ -158,32 +181,34 @@ class Chess:
         target_piece = self.board[end_y][end_x]
         
         # Initialize variables
-        is_short_castle, is_long_castle, is_first_rook_move, first_king_move, en_passant_target, en_passant_capture = False, False, False, False, None, False
+        is_short_castle, is_long_castle, is_first_rook_move, first_king_move, en_passant_piece, en_passant_capture = False, False, False, False, None, False
 
-        # Make the move on the board
-        en_passant_capture = check_for_en_passant_capture(self, piece, end_y, end_x, self.current_turn)
+        # Check if en passant move is possible
+        en_passant_capture = check_for_en_passant_capture(self, piece, start_x, end_y, end_x)
+
         if en_passant_capture:
-            en_passant_capture_move(self, start_y, start_x)
-        if check_castling_move(piece, start_x, end_x):
+            en_passant_capture_move(self, start_y, start_x, end_y, end_x)
+        # Check if move is castling move
+        elif check_castling_move(piece, start_x, end_x):
             is_short_castle, is_long_castle = castling_move(self, piece, end_x)
+        # Default move
         else:
-            self.default_capture(piece, start_y, start_x, end_y, end_x)
-        
+            self.default_move(piece, start_y, start_x, end_y, end_x)
+
+        # Setup en passant for next move
+        en_passant_piece = setup_en_passant(self, piece, start_y, end_y, end_x)
+
         # Check if its a first piece move
         first_king_move = check_for_king_movement(self, piece, first_king_move)
-        is_first_rook_move = check_for_rook_movement(self, piece, start, is_first_rook_move)
-
-        # Check if en passant is possible for opponent and get target piece
-        en_passant_target = check_en_passant_possible(self, piece, start_y, end_y, end_x)
-        self.en_passant_target = en_passant_target
+        is_first_rook_move = check_for_rook_movement(self, piece, start, is_short_castle, is_long_castle, is_first_rook_move)
 
         # Tuple for history
-        move = (start, end, target_piece, is_short_castle, is_long_castle, first_king_move, is_first_rook_move, en_passant_target, en_passant_capture)
+        move = (start, end, target_piece, is_short_castle, is_long_castle, first_king_move, is_first_rook_move, en_passant_piece, en_passant_capture)
         self.history.append(move)
 
         self.switch_turn()
     
-    def default_capture(self, piece, start_y, start_x, end_y, end_x):
+    def default_move(self, piece, start_y, start_x, end_y, end_x):
         """
         params:
         (class Piece) piece

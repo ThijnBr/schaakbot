@@ -16,16 +16,14 @@ def check_for_king_movement(chess, piece, first_king_move) -> bool:
         # Check if turn is white and check if white king has moved.
         if chess.current_turn == 'white' and not chess.white_king_moved:
             first_king_move = True
-            chess.castle_short_white = False
-            chess.castle_long_white = False
+            chess.white_king_moved = True
         # Check if turn is black and check if black king has moved
         if chess.current_turn == 'black' and not chess.black_king_moved:
             first_king_move = True
-            chess.castle_short_black = False
-            chess.castle_long_black = False
+            chess.black_king_moved = True
     return first_king_move
     
-def check_for_rook_movement(chess, piece, start, is_first_rook_move) -> bool:
+def check_for_rook_movement(chess, piece, start, short_castle, long_castle, is_first_rook_move) -> bool:
     """
     params:
     (class Chess) chess
@@ -38,6 +36,7 @@ def check_for_rook_movement(chess, piece, start, is_first_rook_move) -> bool:
     bool: original value False if not first rook move. Else return True
     """
     # Start should be one of the corners of the board.
+
     def handle_white_rook_movement():
         nonlocal is_first_rook_move
         if start == (7, 0) and chess.castle_long_white:
@@ -63,7 +62,7 @@ def check_for_rook_movement(chess, piece, start, is_first_rook_move) -> bool:
     # Check if piece is Rook
     if isinstance(piece, Rook):
         if chess.current_turn == 'white':
-            handle_white_rook_movement()
+            handle_white_rook_movement()  
         elif chess.current_turn == 'black':
             handle_black_rook_movement()
 
