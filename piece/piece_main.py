@@ -2,6 +2,7 @@ class Piece:
     def __init__(self, color, name):
         self.color = color
         self.name = name
+        self.image_path = None
 
     def __repr__(self):
         return f"{self.color[0].upper()}{self.name[0].upper()}"

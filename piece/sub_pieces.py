@@ -30,14 +30,7 @@ class Pawn(Piece):
         # Capture moves
         self.pawn_captures(chess, possible_positions, y, x, direction)
 
-        # self.add_promotion_square(chess, possible_positions, y + direction, x)
-
         return possible_positions
-    
-    def add_promotion_square(self, chess, possible_positions, y, x):
-        if y == self.promotion_rank and chess.is_empty(y, x):
-            for _ in range(3):
-                possible_positions.append((y, x))
     
     def pawn_captures(self, chess, possible_positions, y, x, direction):
         """
@@ -57,7 +50,6 @@ class Pawn(Piece):
                 # Normal capture
                 if chess.is_enemy(new_y, new_x, self.color):
                     possible_positions.append((new_y, new_x))
-                    # self.add_promotion_square(chess, possible_positions, new_y, new_x)
 
                 #En passant capture
                 if chess.en_passant_target:

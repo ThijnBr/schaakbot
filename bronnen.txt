@@ -1,0 +1,3 @@
+https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function piece square evaluation
+https://en.wikipedia.org/wiki/Alpha–beta_pruning alpha beta pruning
+https://stackoverflow.com/questions/64336251/how-to-stop-alpha-beta-with-a-timer-in-iterative-deepening cutoff timer
