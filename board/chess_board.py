@@ -5,6 +5,7 @@ from castling.castling_main import castling_move, check_castling_move
 from castling.castling_check_for_movement import check_for_king_movement, check_for_rook_movement
 from en_passant.en_passant_main import setup_en_passant, check_for_en_passant_capture, en_passant_capture_move
 from promotion.promotion_main import check_for_promotion, promote_piece
+from algorithms.minmax import standard_minimax
 
 class Chess:
     def __init__(self, fen=None):
@@ -164,6 +165,12 @@ class Chess:
                 if isinstance(piece, King) and piece.color == color:
                     return (y, x)
         return None
+    
+    def make_ai_move(self, depth):
+        maximizing_player = True if self.current_turn == 'white' else False
+        evaluation, move = standard_minimax(self, depth, maximizing_player)
+        if move:
+            self.make_move(move[0], move[1])
 
     def make_move(self, start, end, promotion_piece=None):
         """

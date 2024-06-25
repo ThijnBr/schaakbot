@@ -57,8 +57,8 @@ def standard_minimax(chess, depth, alpha=float('-inf'), beta=float('inf')):
                                     best_move = (old_pos, new_pos, promotion_piece)
                                 beta = min(beta, best_eval)
                             undo_move(chess)
-                            if beta <= alpha:
-                                break
+                            # if beta <= alpha:
+                            #     break
                     else:
                         chess.make_move(old_pos, new_pos)
                         evaluation, _ = standard_minimax(chess, depth - 1, alpha, beta)
@@ -73,7 +73,7 @@ def standard_minimax(chess, depth, alpha=float('-inf'), beta=float('inf')):
                                 best_move = (old_pos, new_pos)
                             beta = min(beta, best_eval)
                         undo_move(chess)
-                        if beta <= alpha:
-                            break
+                        # if beta <= alpha:
+                        #     break
 
     return best_eval, best_move

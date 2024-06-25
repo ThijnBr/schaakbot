@@ -4,6 +4,7 @@ class Pawn(Piece):
     def __init__(self, color):
         super().__init__(color, 'pawn')
         self.promotion_rank = 0 if color == 'white' else 7
+        self.value = 1
 
     def get_all_moves(self, position, chess):
         """
@@ -62,6 +63,7 @@ class Pawn(Piece):
 class Rook(Piece):
     def __init__(self, color):
         super().__init__(color, 'rook')
+        self.value = 5
 
     def get_all_moves(self, position, board):
         """
@@ -83,6 +85,7 @@ class Rook(Piece):
 class Knight(Piece):
     def __init__(self, color):
         super().__init__(color, 'knight')
+        self.value = 3
 
     def get_all_moves(self, position, board):
         """
@@ -105,6 +108,7 @@ class Knight(Piece):
 class Bishop(Piece):
     def __init__(self, color):
         super().__init__(color, 'bishop')
+        self.value = 3
 
     def get_all_moves(self, position, board):
         """
@@ -125,6 +129,7 @@ class Bishop(Piece):
 class Queen(Piece):
     def __init__(self, color):
         super().__init__(color, 'queen')
+        self.value = 9
 
     def get_all_moves(self, position, board):
         """
@@ -146,6 +151,7 @@ class Queen(Piece):
 
 class King(Piece):
     def __init__(self, color):
+        self.value = 20
         super().__init__(color, 'king')
 
     def get_all_moves(self, position, chess):

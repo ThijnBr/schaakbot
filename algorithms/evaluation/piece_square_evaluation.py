@@ -92,9 +92,9 @@ def evaluate_piece_square(chess):
     def get_piece_value(piece, x, y):
         value = piece_values[piece.name]
         if piece.color == 'white':
-            value += piece_square_tables[piece.name][y * 8 + x]/10
+            value += piece_square_tables[piece.name][y * 8 + x] / 10
         else:
-            value -= piece_square_tables[piece.name][(7 - y) * 8 + x]/10
+            value += piece_square_tables[piece.name][(7 - y) * 8 + x] / 10
         return value
 
     total_evaluation = 0
