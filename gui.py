@@ -75,7 +75,7 @@ class ChessGUI:
                 self.buttons[pos_y][pos_x].config(bg='green')
 
 root = Tk()
-chess = Chess('k7/8/1p5P/8/8/8/8/K7 w -') 
+chess = Chess('4k3/P7/8/8/6p1/8/8/3K4 w -') 
 gui = ChessGUI(root, chess)
 gui.frm.pack()
 root.mainloop()

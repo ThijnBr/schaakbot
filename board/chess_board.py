@@ -4,6 +4,7 @@ from board.load_fen import load_from_fen
 from castling.castling_main import castling_move, check_castling_move
 from castling.castling_check_for_movement import check_for_king_movement, check_for_rook_movement
 from en_passant.en_passant_main import setup_en_passant, check_for_en_passant_capture, en_passant_capture_move
+from promotion.promotion_main import check_for_promotion, promote_piece
 
 class Chess:
     def __init__(self, fen=None):
@@ -164,13 +165,20 @@ class Chess:
                     return (y, x)
         return None
 
-    def make_move(self, start, end):
+    def make_move(self, start, end, promotion_piece=None):
         """
         params:
         (tuple) start
         (tuple) end
 
-        Function to make a move on the board.
+        Function to make a move on the board. Order of functions for it to work correctly.
+        1. check if move is en passant capture
+        2. move/capture functions
+        3. setup en passant for next move
+        4. check if promotion is possible based on current board state
+        5. check if there was any rook or king movement
+        6. append move to history
+        7. switch turns
         """
         start_y, start_x = start
         end_y, end_x = end
@@ -181,7 +189,7 @@ class Chess:
         target_piece = self.board[end_y][end_x]
         
         # Initialize variables
-        is_short_castle, is_long_castle, is_first_rook_move, first_king_move, en_passant_piece, en_passant_capture = False, False, False, False, None, False
+        is_short_castle, is_long_castle, is_first_rook_move, first_king_move, en_passant_piece, en_passant_capture, promotion = False, False, False, False, None, False, False
 
         # Check if en passant move is possible
         en_passant_capture = check_for_en_passant_capture(self, piece, start_x, end_y, end_x)
@@ -198,12 +206,18 @@ class Chess:
         # Setup en passant for next move
         en_passant_piece = setup_en_passant(self, piece, start_y, end_y, end_x)
 
+        # Check if piece can be promoted.
+        promotion_possible = check_for_promotion(piece, end_y)
+        if promotion_possible:
+            promotion = True
+            promote_piece(self, end_y, end_x, promotion_piece)
+
         # Check if its a first piece move
         first_king_move = check_for_king_movement(self, piece, first_king_move)
         is_first_rook_move = check_for_rook_movement(self, piece, start, is_short_castle, is_long_castle, is_first_rook_move)
 
         # Tuple for history
-        move = (start, end, target_piece, is_short_castle, is_long_castle, first_king_move, is_first_rook_move, en_passant_piece, en_passant_capture)
+        move = (start, end, target_piece, is_short_castle, is_long_castle, first_king_move, is_first_rook_move, en_passant_piece, en_passant_capture, promotion)
         self.history.append(move)
 
         self.switch_turn()
