@@ -7,9 +7,11 @@ from en_passant.en_passant_main import setup_en_passant, check_for_en_passant_ca
 from promotion.promotion_main import check_for_promotion, promote_piece
 from algorithms.minmax import standard_minimax
 
+import numpy as np
+
 class Chess:
     def __init__(self, fen=None):
-        self.board = [[None for _ in range(8)] for _ in range(8)]
+        self.board = np.empty((8, 8), dtype=object)
 
         """ 
         Content of history list
@@ -48,6 +50,31 @@ class Chess:
         else:
             load_from_fen(self, 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
+    def is_draw(self):
+        """
+        Function to check if the current game state is a draw.
+        A draw occurs if the opponent has no legal moves and is not in check (stalemate).
+        """
+        opponent_color = 'black' if self.current_turn == 'white' else 'white'
+        
+        # If the opponent is in check, it's not a draw
+        if self.is_in_check(opponent_color):
+            return False
+        
+        # Check if the opponent has any legal moves
+        for y in range(8):
+            for x in range(8):
+                piece = self.board[y, x]
+                if piece and piece.color == opponent_color:
+                    possible_moves = piece.get_possible_moves((y, x), self)
+                    valid_moves = self.filter_moves(possible_moves, piece, (y, x))
+                    if valid_moves:
+                        return False
+        
+        # If no legal moves found, it's a draw
+        return True
+
+
     def print_board(self):
         for row in self.board:
             print(" ".join([str(piece) if piece else '--' for piece in row]))
@@ -82,7 +109,7 @@ class Chess:
         Returns:
         bool
         """
-        return self.board[y][x] == None
+        return self.board[y, x] == None
     
     def is_enemy(self, y, x, color):
         """
@@ -96,7 +123,7 @@ class Chess:
         Returns:
         bool
         """
-        piece = self.board[y][x]
+        piece = self.board[y, x]
         if piece != None:
             return piece.color != color
     
@@ -118,7 +145,7 @@ class Chess:
         # Check if any of the opponent's pieces attacks the king
         for y in range(8):
             for x in range(8):
-                piece = self.board[y][x]
+                piece = self.board[y, x]
                 if piece and self.is_enemy(y, x, color):
                     possible_moves = piece.get_possible_moves((y, x), self, 1)
                     if king_position in possible_moves:
@@ -136,18 +163,31 @@ class Chess:
         Returns:
         bool: True if the given color is in checkmate, False otherwise.
         """
-        all_moves = []
-        
+        # Step 1: Check if the king of the given color is in check
+        if not self.is_in_check(color):
+            return False
+
+        # Step 2: Iterate through all pieces of the given color
         for y in range(8):
             for x in range(8):
-                piece = self.board[y][x]
+                piece = self.board[y, x]
                 if piece and piece.color == color:
+                    # Step 3: Get all possible moves for each piece
                     possible_moves = piece.get_possible_moves((y, x), self)
-                    all_moves += possible_moves
+                    for move in possible_moves:
+                        # Step 4: Simulate the move
+                        self.make_move((y, x), move)
+                        # Step 5: Check if the king is still in check after the move
+                        if not self.is_in_check(color):
+                            # If not in check, it's not checkmate
+                            undo_move(self)  # Undo the move
+                            return False
+                        # Undo the move
+                        undo_move(self)
         
-        if all_moves == []:
-            return True
-        return False
+        # Step 6: If no valid moves prevent checkmate, it's checkmate
+        return True
+
 
     def find_king_position(self, color):
         """
@@ -161,13 +201,13 @@ class Chess:
         """
         for y in range(8):
             for x in range(8):
-                piece = self.board[y][x]
+                piece = self.board[y, x]
                 if isinstance(piece, King) and piece.color == color:
                     return (y, x)
         return None
     
     def make_ai_move(self, depth):
-        maximizing_player = True if self.current_turn == 'white' else False
+        maximizing_player = False if self.current_turn == 'black' else True
         evaluation, move = standard_minimax(self, depth, maximizing_player)
         if move:
             self.make_move(move[0], move[1])
@@ -191,9 +231,9 @@ class Chess:
         end_y, end_x = end
 
         # Piece that is moved
-        piece = self.board[start_y][start_x]
+        piece = self.board[start_y, start_x]
         # Piece that is potentially captured
-        target_piece = self.board[end_y][end_x]
+        target_piece = self.board[end_y, end_x]
         
         # Initialize variables
         is_short_castle, is_long_castle, is_first_rook_move, first_king_move, en_passant_piece, en_passant_capture, promotion = False, False, False, False, None, False, False
@@ -238,8 +278,8 @@ class Chess:
         (int) end_y
         (int) end_x
         """
-        self.board[end_y][end_x] = piece
-        self.board[start_y][start_x] = None
+        self.board[end_y, end_x] = piece
+        self.board[start_y, start_x] = None
         
     def filter_moves(self, possible_moves, piece, position):
         """

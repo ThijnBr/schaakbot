@@ -28,4 +28,4 @@ def promote_piece(chess, end_y, end_x, promotion_piece):
     """
     if not promotion_piece:
         promotion_piece = Queen(chess.current_turn)
-    chess.board[end_y][end_x] = promotion_piece
+    chess.board[end_y, end_x] = promotion_piece

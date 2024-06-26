@@ -37,11 +37,11 @@ def iterative_deepening_minimax(fen, is_maximizing, max_time):
 def main():
     chess = Chess()
     amount = 10
-    depth = 2
+    depth = 3
 
     start = time.time()
     for _ in range(amount):
-        eval, move = standard_minimax(chess, depth=depth)
+        eval, move = standard_minimax(chess, depth, True)
         print(move)
         if move:
             chess.make_move(move[0], move[1])

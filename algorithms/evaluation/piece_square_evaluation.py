@@ -101,7 +101,7 @@ def evaluate_piece_square(chess):
 
     for y in range(8):
         for x in range(8):
-            piece = chess.board[y][x]
+            piece = chess.board[y, x]
             if piece:
                 total_evaluation += get_piece_value(piece, x, y) if piece.color == 'white' else -get_piece_value(piece, x, y)
 

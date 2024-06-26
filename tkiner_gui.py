@@ -51,7 +51,7 @@ class ChessGUI:
     def button_click(self, y, x):
         self.reset_button_colors()
 
-        current_piece = self.chess.board[y][x]
+        current_piece = self.chess.board[y, x]
 
         # If old_click is set and current_piece belongs to current turn
         if self.old_click is not None:

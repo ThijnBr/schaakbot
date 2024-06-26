@@ -7,7 +7,7 @@ def simple_eval(chess):
 
     for y in range(8):
         for x in range(8):
-            piece = chess.board[y][x]
+            piece = chess.board[y, x]
             if piece:
                 value = piece.value
                 if piece.color == 'white':

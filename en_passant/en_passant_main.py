@@ -24,7 +24,7 @@ def en_passant_capture_move(chess, start_y, start_x, end_y, end_x):
     capture_y = end_y + direction
     capture_x = end_x
 
-    chess.board[capture_y][capture_x] = None
-    chess.board[end_y][end_x] = Pawn(chess.current_turn)
-    chess.board[start_y][start_x] = None
+    chess.board[capture_y, capture_x] = None
+    chess.board[end_y, end_x] = Pawn(chess.current_turn)
+    chess.board[start_y, start_x] = None
 

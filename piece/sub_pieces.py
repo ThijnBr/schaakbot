@@ -151,7 +151,7 @@ class Queen(Piece):
 
 class King(Piece):
     def __init__(self, color):
-        self.value = 20
+        self.value = 0
         super().__init__(color, 'king')
 
     def get_all_moves(self, position, chess):
@@ -187,9 +187,9 @@ class King(Piece):
         y = 7 if self.color == 'white' else 0
 
         # Get rook for short castle
-        rook_short = chess.board[y][7]
+        rook_short = chess.board[y, 7]
         # Get rook for long castle
-        rook_long = chess.board[y][0]
+        rook_long = chess.board[y, 0]
         
         king_moved = chess.white_king_moved if self.color == 'white' else chess.black_king_moved
         castle_short = chess.castle_short_white if self.color == 'white' else chess.castle_short_black

@@ -39,7 +39,7 @@ for filename in os.listdir(IMAGE_PATH):
 def draw_board(board, possible_positions):
     for row in range(ROWS):
         for col in range(COLS):
-            piece = board[row][col]
+            piece = board[row, col]
             if (row, col) in possible_positions:
                 color = GREEN
             elif (row + col) % 2 == 0:
@@ -98,10 +98,8 @@ def main(fen=None, depth=2):
                     mouse_pos = pygame.mouse.get_pos()
                     if white_button.collidepoint(mouse_pos):
                         player_color = 'white'
-                        chess.current_turn = 'white'
                     elif black_button.collidepoint(mouse_pos):
                         player_color = 'black'
-                        chess.current_turn = 'white'
         else:
             current_turn = chess.current_turn
             for event in pygame.event.get():
@@ -109,16 +107,16 @@ def main(fen=None, depth=2):
                     run = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
-                    row, col = get_board_position(mouse_pos)
+                    y, x = get_board_position(mouse_pos)
                     
                     if selected_piece is None:
-                        piece = board[row][col]
+                        piece = board[y, x]
                         if piece is not None and piece.color == current_turn:
-                            selected_piece = (row, col)
-                            possible_positions = piece.get_possible_moves((row, col), chess)
+                            selected_piece = (y, x)
+                            possible_positions = piece.get_possible_moves((y, x), chess)
                     else:
-                        if (row, col) in possible_positions:
-                            chess.make_move(selected_piece, (row, col))
+                        if (y, x) in possible_positions:
+                            chess.make_move(selected_piece, (y, x))
                             selected_piece = None
                             possible_positions = []
                         else:
@@ -137,4 +135,4 @@ def main(fen=None, depth=2):
     sys.exit()
 
 if __name__ == "__main__":
-    main('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ', depth=3)
+    main(depth=3)

@@ -35,15 +35,15 @@ def undo_castling(short_side_castle, board, current_turn):
         # Sets pieces opposite color of current_turn on board
         color = 'white' if current_turn == 'black' else 'black'
         if short_side_castle:
-            board[y][6] = None
-            board[y][5] = None
-            board[y][4] = King(color)
-            board[y][7] = Rook(color)
+            board[y, 6] = None
+            board[y, 5] = None
+            board[y, 4] = King(color)
+            board[y, 7] = Rook(color)
         else:
-            board[y][2] = None
-            board[y][3] = None
-            board[y][4] = King(color)
-            board[y][0] = Rook(color)
+            board[y, 2] = None
+            board[y, 3] = None
+            board[y, 4] = King(color)
+            board[y, 0] = Rook(color)
     
 def undo_castling_state(chess, start, first_king_move, is_first_rook_move):
     """

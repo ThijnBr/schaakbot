@@ -46,13 +46,13 @@ def perform_castling(short_side_castling, board, current_turn):
     y = 7 if current_turn == 'white' else 0
     # Short side castling
     if short_side_castling:
-        board[y][4] = None
-        board[y][7] = None
-        board[y][6] = King(current_turn)
-        board[y][5] = Rook(current_turn)
+        board[y, 4] = None
+        board[y, 7] = None
+        board[y, 6] = King(current_turn)
+        board[y, 5] = Rook(current_turn)
     # Long side castling
     else:
-        board[y][4] = None
-        board[y][0] = None
-        board[y][2] = King(current_turn)
-        board[y][3] = Rook(current_turn)
+        board[y, 4] = None
+        board[y, 0] = None
+        board[y, 2] = King(current_turn)
+        board[y, 3] = Rook(current_turn)

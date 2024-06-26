@@ -6,7 +6,7 @@ class Piece:
 
     def __repr__(self):
         return f"{self.color[0].upper()}{self.name[0].upper()}"
-    
+
     def get_possible_moves(self, position, chess, move=0) -> list:
         """
         params:
@@ -27,7 +27,6 @@ class Piece:
             return filtered_positions
         return possible_positions
 
-
     def linear_movement(self, y, x, moves, board):
         """
         params:
@@ -36,7 +35,7 @@ class Piece:
         (list of tuples) moves
         (3D list) board
 
-        Function to get possible positions with a linear loop. For bishops, queens and rooks
+        Function to get possible positions with a linear loop. For bishops, queens, and rooks
 
         Returns:
         list: A list of tuples with all possible positions.
@@ -45,13 +44,12 @@ class Piece:
         for move_y, move_x in moves:
             new_y, new_x = y + move_y, x + move_x
             while board.is_in_bounds(new_y, new_x):
-                if board.is_empty(new_y, new_x):
+                if board.is_empty(new_y, new_x) or board.is_enemy(new_y, new_x, self.color):
                     possible_positions.append((new_y, new_x))
-                elif board.is_enemy(new_y, new_x, self.color):
-                    possible_positions.append((new_y, new_x))
-                    break
+                    if board.is_enemy(new_y, new_x, self.color):
+                        break  # Stop further movement in this direction if an enemy piece is encountered
                 else:
-                    break
+                    break  # Stop further movement in this direction if an own piece is encountered
                 new_x += move_x
                 new_y += move_y
         return possible_positions
@@ -64,7 +62,7 @@ class Piece:
         (list of tuples) moves
         (3D list) board
 
-        Function to get possible positions with a single loop. For pieces as King and Knight
+        Function to get possible positions with a single loop. For pieces such as King and Knight
 
         Returns:
         list: A list of tuples with all possible positions.
@@ -72,7 +70,6 @@ class Piece:
         possible_positions = []
         for dy, dx in moves:
             new_y, new_x = y + dy, x + dx
-            if board.is_in_bounds(new_y, new_x):
-                if board.is_empty(new_y, new_x) or board.is_enemy(new_y, new_x, self.color):
-                    possible_positions.append((new_y, new_x))
+            if board.is_in_bounds(new_y, new_x) and (board.is_empty(new_y, new_x) or board.is_enemy(new_y, new_x, self.color)):
+                possible_positions.append((new_y, new_x))
         return possible_positions

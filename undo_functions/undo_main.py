@@ -9,9 +9,6 @@ def undo_move(chess):
         (class Chess) chess
 
         Function to undo a move. 
-
-        Returns:
-        bool: returns false if no history, returns true if undo move is done
         """
         if not chess.history:
             return False
@@ -34,8 +31,8 @@ def undo_move(chess):
         # If is not a castling move, do a undo default move.
         elif not undo_castling_move(chess, is_short_castle, is_long_castle):
             # print('undo normal move')
-            chess.board[start_y][start_x] = chess.board[end_y][end_x]
-            chess.board[end_y][end_x] = target_piece
+            chess.board[start_y, start_x] = chess.board[end_y, end_x]
+            chess.board[end_y, end_x] = target_piece
 
         if chess.history:
             chess.en_passant_target = chess.history[-1][-3]
@@ -45,4 +42,3 @@ def undo_move(chess):
 
         # Switch turn
         chess.switch_turn()
-        return True
