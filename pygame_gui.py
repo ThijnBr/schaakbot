@@ -79,9 +79,9 @@ def draw_start_screen():
     
     return white_button, black_button
 
-def main():
+def main(fen=None, depth=2):
     run = True
-    chess = Chess()  # Initialize your Chess game
+    chess = Chess(fen)  # Initialize your Chess game
     board = chess.board  # Get the board configuration
 
     selected_piece = None  # Variable to store the selected piece
@@ -125,8 +125,8 @@ def main():
                             selected_piece = None
                             possible_positions = []
 
-            if current_turn != player_color:
-                chess.make_ai_move(depth=3)
+            if chess.current_turn != player_color:
+                chess.make_ai_move(depth)
             
             win.fill(GREY)  # Fill the background with grey
             draw_board(chess.board, possible_positions)  # Draw the chess board with possible positions
@@ -137,4 +137,4 @@ def main():
     sys.exit()
 
 if __name__ == "__main__":
-    main()
+    main('r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ', depth=3)

@@ -4,7 +4,7 @@ from piece.sub_pieces import Rook, Bishop, Queen, Knight, Pawn
 
 available_promotion_piece = [Rook, Bishop, Queen, Knight]
 
-def standard_minimax(chess, depth, alpha=float('-inf'), beta=float('inf')):
+def standard_minimax(chess, depth, alpha=float(-1_000_000), beta=float(1_000_000)):
     """
     params:
     (class Board) chess
@@ -20,13 +20,16 @@ def standard_minimax(chess, depth, alpha=float('-inf'), beta=float('inf')):
     current_turn = chess.current_turn
     maximizing_player = current_turn == 'white'  # True if white's turn, False otherwise
 
-    if depth == 0 or chess.is_checkmate(chess.current_turn):
+    if chess.is_checkmate(current_turn):
+        return float(1_000_000), None
+
+    if depth == 0:
         return evaluate_board(chess), None  # return evaluation score and best move
 
     
     promotion_rank = 0 if current_turn == 'white' else 7
 
-    best_eval = float('-inf') if maximizing_player else float('inf')
+    best_eval = float(-1_000_000) if maximizing_player else float(1_000_000)
     best_move = None
 
     for y in range(8):

@@ -35,8 +35,20 @@ def iterative_deepening_minimax(fen, is_maximizing, max_time):
     return best_eval, best_move
 
 def main():
-    evaluation = iterative_deepening_minimax('', True, 5)
-    print(evaluation)
+    chess = Chess()
+    amount = 10
+    depth = 2
+
+    start = time.time()
+    for _ in range(amount):
+        eval, move = standard_minimax(chess, depth=depth)
+        print(move)
+        if move:
+            chess.make_move(move[0], move[1])
+    end = time.time()
+
+    elapsed_time = end - start
+    print(f"Time taken for {amount} minimax evaluations at depth {depth}: {elapsed_time:.2f} seconds")
 
 if __name__ == "__main__":
     main()
