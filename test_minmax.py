@@ -41,7 +41,7 @@ def main():
 
     start = time.time()
     for _ in range(amount):
-        eval, move = standard_minimax(chess, depth, True)
+        _, move = standard_minimax(chess, depth, True)
         print(move)
         if move:
             chess.make_move(move[0], move[1])

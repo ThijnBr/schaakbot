@@ -187,9 +187,13 @@ class King(Piece):
         y = 7 if self.color == 'white' else 0
 
         # Get rook for short castle
-        rook_short = chess.board[y, 7]
+        rook_short = None
+        if isinstance(chess.board[y, 7], Rook):
+            rook_short = chess.board[y, 7]
         # Get rook for long castle
-        rook_long = chess.board[y, 0]
+        rook_long = None
+        if isinstance(chess.board[y, 0], Rook):
+            rook_long = chess.board[y, 0]
         
         king_moved = chess.white_king_moved if self.color == 'white' else chess.black_king_moved
         castle_short = chess.castle_short_white if self.color == 'white' else chess.castle_short_black
@@ -201,4 +205,5 @@ class King(Piece):
 
         # Check for long castling
         if rook_long and not king_moved and castle_long and chess.is_empty(y,1) and chess.is_empty(y,2) and chess.is_empty(y,3):
+            #print(f'long castle, rook_long: {rook_long}, king_moved: {king_moved}, castle_long: {castle_long}')
             possible_positions.append((y,2))

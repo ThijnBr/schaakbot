@@ -1,4 +1,4 @@
-from piece.sub_pieces import King
+from piece.sub_pieces import King, Pawn
 from undo_functions.undo_main import undo_move
 from board.load_fen import load_from_fen
 from castling.castling_main import castling_move, check_castling_move
@@ -50,40 +50,51 @@ class Chess:
         else:
             load_from_fen(self, 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
 
-    def is_draw(self):
-        """
-        Function to check if the current game state is a draw.
-        A draw occurs if the opponent has no legal moves and is not in check (stalemate).
-        """
-        opponent_color = 'black' if self.current_turn == 'white' else 'white'
-        
-        # If the opponent is in check, it's not a draw
-        if self.is_in_check(opponent_color):
-            return False
-        
-        # Check if the opponent has any legal moves
-        for y in range(8):
-            for x in range(8):
-                piece = self.board[y, x]
-                if piece and piece.color == opponent_color:
-                    possible_moves = piece.get_possible_moves((y, x), self)
-                    valid_moves = self.filter_moves(possible_moves, piece, (y, x))
-                    if valid_moves:
-                        return False
-        
-        # If no legal moves found, it's a draw
-        return True
-
-
     def print_board(self):
+        piece = self.board[4, 4]
+        if isinstance(piece, Pawn) and piece.color == 'black':
+            print()
+        print('----------------------')
+        print(f'{self.current_turn} to move')
         for row in self.board:
             print(" ".join([str(piece) if piece else '--' for piece in row]))
+        print('----------------------') 
+        
 
     def switch_turn(self):
         """
         Function to switch turns
         """
         self.current_turn = 'black' if self.current_turn == 'white' else 'white'
+
+    def is_draw(self, color):
+        """
+        params:
+        (string) color
+
+        Function to check if the given color is in stalemate.
+
+        Returns:
+        bool: True if the given color is in stalemate, False otherwise.
+        """
+        # Step 1: Check if the king of the given color is in check
+        if self.is_in_check(color):
+            return False
+
+        # Step 2: Iterate through all pieces of the given color
+        for y in range(8):
+            for x in range(8):
+                piece = self.board[y, x]
+                if piece and piece.color == color:
+                    # Step 3: Get all possible moves for each piece
+                    possible_moves = piece.get_possible_moves((y, x), self)
+                    # Step 4: Filter out the invalid moves
+                    valid_moves = self.filter_moves(possible_moves, piece, (y, x))
+                    if valid_moves:
+                        return False
+        
+        # Step 5: If no valid moves are found, it's a stalemate
+        return True
     
     def is_in_bounds(self, y, x):
         """
@@ -188,7 +199,6 @@ class Chess:
         # Step 6: If no valid moves prevent checkmate, it's checkmate
         return True
 
-
     def find_king_position(self, color):
         """
         params:
@@ -208,7 +218,7 @@ class Chess:
     
     def make_ai_move(self, depth):
         maximizing_player = False if self.current_turn == 'black' else True
-        evaluation, move = standard_minimax(self, depth, maximizing_player)
+        _, move = standard_minimax(self, depth, maximizing_player)
         if move:
             self.make_move(move[0], move[1])
 
@@ -241,10 +251,11 @@ class Chess:
         # Check if en passant move is possible
         en_passant_capture = check_for_en_passant_capture(self, piece, start_x, end_y, end_x)
 
+        #print(f'starting make move for move {start} to {end} with {target_piece} target piece. Is en passant move: {en_passant_capture}')
         if en_passant_capture:
             en_passant_capture_move(self, start_y, start_x, end_y, end_x)
         # Check if move is castling move
-        elif check_castling_move(piece, start_x, end_x):
+        elif check_castling_move(self, piece, start_x, end_x):
             is_short_castle, is_long_castle = castling_move(self, piece, end_x)
         # Default move
         else:

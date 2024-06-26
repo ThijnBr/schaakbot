@@ -5,6 +5,8 @@ class Piece:
         self.image_path = None
 
     def __repr__(self):
+        if self.name == 'knight':
+            return f"{self.color[0].upper()}{self.name[1].upper()}"
         return f"{self.color[0].upper()}{self.name[0].upper()}"
 
     def get_possible_moves(self, position, chess, move=0) -> list:
@@ -24,7 +26,9 @@ class Piece:
         possible_positions = self.get_all_moves(position, chess)
         if move == 0:
             filtered_positions = chess.filter_moves(possible_positions, self, position)
+            #print(f'{self.name} possible positions {filtered_positions}')
             return filtered_positions
+        
         return possible_positions
 
     def linear_movement(self, y, x, moves, board):

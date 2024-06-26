@@ -22,10 +22,10 @@ def evaluate_board(chess):
     # Evaluate control of the center
     total_eval += evaluate_control_of_center(chess) * 10
 
-    # Evaluate development
+    # # Evaluate development
     total_eval += evaluate_piece_development(white_piece_positions, black_piece_positions) * 5
 
-    # Evaluate king safety
+    # # Evaluate king safety
     total_eval += evaluate_king_safety(chess) * 10
 
     return total_eval
@@ -82,16 +82,17 @@ def evaluate_king_position(chess, king_position):
     y, x = king_position
     king_safety_score = 0
 
-    # Check for pieces around the king
-    for dy in range(-1, 2):
-        for dx in range(-1, 2):
-            ny, nx = y + dy, x + dx
-            if chess.is_in_bounds(ny, nx):
-                piece = chess.board[ny, nx]
-                if piece:
-                    if piece.color == 'white':
-                        king_safety_score += 1
-                    else:
-                        king_safety_score -= 1
+    directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+
+    for dy, dx in directions:
+        ny, nx = y + dy, x + dx
+        if chess.is_in_bounds(ny, nx):
+            piece = chess.board[ny, nx]
+            if piece and piece.color == 'white':
+                king_safety_score += 1
+            elif piece and piece.color != 'white':
+                king_safety_score -= 1
 
     return king_safety_score
+
+

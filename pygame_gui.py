@@ -79,15 +79,21 @@ def draw_start_screen():
     
     return white_button, black_button
 
-def main(fen=None, depth=2):
-    run = True
+def setup(fen):
+    global chess, board, selected_piece, possible_positions, player_color, run
     chess = Chess(fen)  # Initialize your Chess game
     board = chess.board  # Get the board configuration
+    run = True
 
     selected_piece = None  # Variable to store the selected piece
     possible_positions = []  # List to store the possible moves
     player_color = None  # Variable to store the player's color
 
+    
+
+def main(fen=None, depth=2):
+    global chess, board, selected_piece, possible_positions, player_color, run
+    setup(fen)
     while run:
         if player_color is None:
             white_button, black_button = draw_start_screen()
@@ -110,7 +116,7 @@ def main(fen=None, depth=2):
                     y, x = get_board_position(mouse_pos)
                     
                     if selected_piece is None:
-                        piece = board[y, x]
+                        piece = chess.board[y, x]
                         if piece is not None and piece.color == current_turn:
                             selected_piece = (y, x)
                             possible_positions = piece.get_possible_moves((y, x), chess)

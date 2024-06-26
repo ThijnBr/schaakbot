@@ -1,5 +1,5 @@
 from piece.sub_pieces import King, Rook
-def check_castling_move(piece, start_x, end_x):
+def check_castling_move(chess, piece, start_x, end_x):
     """
     params:
     (class Piece) piece
@@ -11,7 +11,7 @@ def check_castling_move(piece, start_x, end_x):
     Returns:
     bool: True if king else False
     """
-    if isinstance(piece, King) and abs(end_x - start_x) == 2:
+    if isinstance(piece, King) and abs(end_x - start_x) == 2 and not chess.is_in_check(chess.current_turn):
         return True
     return False
 def castling_move(chess, piece, end_x):

@@ -98,20 +98,16 @@ def set_rook_moved(chess, start, is_first_rook_move):
 
 def set_castling_state(chess):
     """
-    params:
-    (class Board) chess
-
-    Function to undo castling state. 
+    Function to set the castling state based on the current game state.
+    
+    Parameters:
+    chess (class Board): The chess board instance.
     """
     if chess.current_turn == 'black':
         if not chess.white_king_moved:
-            if not chess.white_rook_short_moved:
-                chess.castle_short_white = True
-            if not chess.white_rook_long_moved:
-                chess.castle_long_white = True
+            chess.castle_short_white = not chess.white_rook_short_moved
+            chess.castle_long_white = not chess.white_rook_long_moved
     else:
         if not chess.black_king_moved:
-            if not chess.black_rook_short_moved:
-                chess.castle_short_black = True
-            if not chess.black_rook_long_moved:
-                chess.castle_long_black = True
+            chess.castle_short_black = not chess.black_rook_short_moved
+            chess.castle_long_black = not chess.black_rook_long_moved

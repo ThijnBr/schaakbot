@@ -1,12 +1,15 @@
 from piece.sub_pieces import Pawn
 
 def setup_en_passant(chess, piece, start_y, end_y, end_x):
-    if chess.en_passant_target == (end_y, end_x) and chess.en_passant_target != None:
-        chess.en_passant_target = None
-        return None
+    """
+    Function to setup en passant for next move
+    """
     if isinstance(piece, Pawn) and abs(start_y - end_y) == 2:
         chess.en_passant_target = (end_y, end_x)
         return (end_y, end_x)
+    else:
+        chess.en_passant_target = None
+        return None
         
 def check_for_en_passant_capture(chess, piece, start_x, end_y, end_x):
     direction = 1 if chess.current_turn == 'white' else -1

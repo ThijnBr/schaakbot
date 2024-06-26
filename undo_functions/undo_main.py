@@ -10,6 +10,7 @@ def undo_move(chess):
 
         Function to undo a move. 
         """
+        
         if not chess.history:
             return False
         
@@ -20,6 +21,7 @@ def undo_move(chess):
         start_y, start_x = start
         end_y, end_x = end
         
+        # print(f'starting undo for move {start} to {end}. with target piece {target_piece}')
         # Check if previous move was a en passant capture
         if en_passant_capture:
             #print('undo en passant')

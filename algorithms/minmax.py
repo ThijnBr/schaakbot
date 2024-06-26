@@ -19,12 +19,10 @@ def standard_minimax(chess, depth, maximizing_player, alpha=-float(1_000_000), b
     """
     current_turn = chess.current_turn
 
-    # if chess.is_checkmate(current_turn):
-    #     chess.print_board()
-    #     print()
-    #     return float(1_000_000) if current_turn == 'white' else -float(1_000_000), None
+    if chess.is_checkmate(current_turn):
+        return float(1_000_000) if current_turn == 'white' else -float(1_000_000), None
     
-    if chess.is_draw():
+    if chess.is_draw(current_turn):
         return 0, None
 
     if depth == 0:
@@ -67,7 +65,8 @@ def standard_minimax(chess, depth, maximizing_player, alpha=-float(1_000_000), b
                             if beta <= alpha:
                                 break
                     else:
-                        chess.make_move(old_pos, new_pos)
+                        chess.make_move(old_pos, new_pos)      
+                        
                         evaluation, _ = standard_minimax(chess, depth - 1, not maximizing_player, alpha, beta)
                         if maximizing_player:
                             if evaluation > best_eval:
